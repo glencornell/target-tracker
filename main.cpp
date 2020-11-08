@@ -17,10 +17,10 @@ int main(int argc, char * argv[]) {
   qreal distance = point_a.distanceTo(point_b);
   qreal azimuth = point_a.azimuthTo(point_b);
 
-  stream << "point_a: " << point_a.toString() << endl;
-  stream << "point_b: " << point_b.toString() << endl;
-  stream << "distance to point b: " << distance << endl;
-  stream << " azimuth to point b: " << azimuth << endl;
+  stream << "point_a: " << point_a.toString() << Qt::endl;
+  stream << "point_b: " << point_b.toString() << Qt::endl;
+  stream << "distance to point b: " << distance << Qt::endl;
+  stream << " azimuth to point b: " << azimuth << Qt::endl;
 
   // Main loop:
   return a.exec();
