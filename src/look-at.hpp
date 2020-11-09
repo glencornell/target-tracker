@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QGeoCoordinate>
-#include <QtGlobal>
 
 // calculate the look angle of point b from the frame of reference of
 // point a.  Points a & b are geocentric coordinates (including
