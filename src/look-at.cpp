@@ -1,16 +1,8 @@
 // Code was ported to C from http://cosinekitty.com/compass.html
 
 #include "look-at.hpp"
+#include "vector3d.hpp"
 #include <QtMath>
-
-// A point in 3D space in a cartesian coordinate system.  Not using
-// QVector3D because it consists of float and would lose precision.
-typedef struct {
-  double x;
-  double y;
-  double z;
-} Vector3D;
-
 
 static
 double EarthRadiusInMeters (const double latitudeRadians)
@@ -41,11 +33,11 @@ double GeocentricLatitude(const double lat)
 }
 
 static
-void ConvertLocationToPoint(QGeoCoordinate const *c, bool const oblate, Vector3D *rval, Vector3D *normal, double *radius_at_point)
+void ConvertLocationToPoint(QGeoCoordinate const &c, bool const oblate, Vector3D *rval, Vector3D *normal, double *radius_at_point)
 {
   // Convert (lat, lon, elv) to (x, y, z). Also return the normal and radius of the geoid at the point.
-  const double lat = c->latitude() * M_PI / 180.0;
-  const double lon = c->longitude() * M_PI / 180.0;
+  const double lat = c.latitude() * M_PI / 180.0;
+  const double lon = c.longitude() * M_PI / 180.0;
   const double radius = oblate ? EarthRadiusInMeters(lat) : 6371009;
   const double clat   = oblate ? GeocentricLatitude(lat)  : lat;
         
@@ -66,46 +58,32 @@ void ConvertLocationToPoint(QGeoCoordinate const *c, bool const oblate, Vector3D
   const double ny = cosGlat * sinLon;
   const double nz = sinGlat;
   
-  x += c->altitude() * nx;
-  y += c->altitude() * ny;
-  z += c->altitude() * nz;
+  x += c.altitude() * nx;
+  y += c.altitude() * ny;
+  z += c.altitude() * nz;
 
-  rval->x = x;
-  rval->y = y;
-  rval->z = z;
+  if (rval)
+    rval->set(x, y, z);
 
   // return the normal to the point
-  if (normal) {
-    normal->x = nx;
-    normal->x = nx;
-    normal->x = nx;
-  }
-
+  if (normal)
+    normal->set(nx, ny, nz);
+  
   // return the radius of the geoid at the point
-  if (radius_at_point) {
+  if (radius_at_point)
     *radius_at_point = radius;
-  }
 }
 
 static
-double Distance (Vector3D const *ap, Vector3D const *bp)
-{
-  const double dx = ap->x - bp->x;
-  const double dy = ap->y - bp->y;
-  const double dz = ap->z - bp->z;
-  return qSqrt (dx*dx + dy*dy + dz*dz);
-}
-
-static
-void RotateGlobe (QGeoCoordinate const *b, QGeoCoordinate const *a, const bool oblate, Vector3D *rval)
+Vector3D RotateGlobe(QGeoCoordinate const &b, QGeoCoordinate const &a, const bool oblate)
 {
   // Get modified coordinates of 'b' by rotating the globe so that 'a' is at lat=0, lon=0.
   double cos_a, sin_a;
   double alat;
-  QGeoCoordinate br (b->latitude(), (b->longitude() - a->longitude()), b->altitude());
+  QGeoCoordinate br (b.latitude(), b.longitude() - a.longitude(), b.altitude());
   Vector3D brp;
 
-  ConvertLocationToPoint(&br, oblate, &brp, 0, 0);
+  ConvertLocationToPoint(br, oblate, &brp, 0, 0);
 
   // Rotate brp cartesian coordinates around the z-axis by a.lon degrees,
   // then around the y-axis by a.lat degrees.
@@ -115,46 +93,45 @@ void RotateGlobe (QGeoCoordinate const *b, QGeoCoordinate const *a, const bool o
   // So we will look the other way making the x-axis pointing right, the z-axis
   // pointing up, and the rotation treated as negative.
 
-  alat = -a->latitude() * M_PI / 180.0;
+  alat = -a.latitude() * M_PI / 180.0;
   if (oblate) {
     alat = GeocentricLatitude(alat);
   }
   cos_a = qCos(alat);
   sin_a = qSin(alat);
 
-  rval->x = (brp.x * cos_a) - (brp.z * sin_a);
-  rval->y = brp.y;
-  rval->z = (brp.x * sin_a) + (brp.z * cos_a);
+  return Vector3D((brp.x() * cos_a) - (brp.z() * sin_a),
+                  brp.y(),
+                  (brp.x() * sin_a) + (brp.z() * cos_a));
 }
 
 static
-Vector3D *NormalizeVectorDiff(Vector3D const *b, Vector3D const *a, Vector3D *rval)
+Vector3D *NormalizeVectorDiff(Vector3D const &b, Vector3D const &a, Vector3D *rval)
 {
   // Calculate norm(b-a), where norm divides a vector by its length to produce a unit vector.
   // returns NULL upon error.
-  const double dx = b->x - a->x;
-  const double dy = b->y - a->y;
-  const double dz = b->z - a->z;
+  const double dx = b.x() - a.x();
+  const double dy = b.y() - a.y();
+  const double dz = b.z() - a.z();
   const double dist2 = dx*dx + dy*dy + dz*dz;
   double dist;
   if (dist2 == 0) {
     return 0L;
   }
   dist = qSqrt(dist2);
-  rval->x = dx/dist;
-  rval->y = dy/dist;
-  rval->z = dz/dist;
+  if (rval)
+    rval->set(dx/dist, dy/dist, dz/dist);
   return rval;
 }
 
-void lookAt(QGeoCoordinate const *a, QGeoCoordinate const *b, const bool oblate, double *los_distance, double *azimuth, double *elevation)
+void lookAt(QGeoCoordinate const &a, QGeoCoordinate const &b, const bool oblate, double *los_distance, double *azimuth, double *elevation)
 {
   Vector3D ap, bp, br, bma;
   Vector3D ap_normal;
   
   ConvertLocationToPoint(a, oblate, &ap, &ap_normal, 0);
   ConvertLocationToPoint(b, oblate, &bp, 0, 0);
-  *los_distance = Distance(&ap, &bp);
+  *los_distance = ap.distanceTo(bp);
 
   // Let's use a trick to calculate azimuth:
   // Rotate the globe so that point A looks like latitude 0, longitude 0.
@@ -162,9 +139,9 @@ void lookAt(QGeoCoordinate const *a, QGeoCoordinate const *b, const bool oblate,
   // but use angles based on subtraction.
   // Point A will be at x=radius, y=0, z=0.
   // Vector difference B-A will have dz = N/S component, dy = E/W component.                
-  RotateGlobe (b, a, oblate, &br);
-  if (br.z*br.z + br.y*br.y > 1.0e-6) {
-    double theta = qAtan2(br.z, br.y) * 180.0 / M_PI;
+  br = RotateGlobe (b, a, oblate);
+  if ((br.z()*br.z() + br.y()*br.y()) > 1.0e-6) {
+    double theta = qAtan2(br.z(), br.y()) * 180.0 / M_PI;
     double _azimuth = 90.0 - theta;
     if (_azimuth < 0.0) {
       _azimuth += 360.0;
@@ -175,11 +152,12 @@ void lookAt(QGeoCoordinate const *a, QGeoCoordinate const *b, const bool oblate,
     *azimuth = _azimuth;
   }
                 
-  if (NormalizeVectorDiff(&bp, &ap, &bma)) {
+  if (NormalizeVectorDiff(bp, ap, &bma)) {
     // Calculate elevation, which is the angle above the horizon of B as seen from A.
     // Almost always, B will actually be below the horizon, so the altitude will be negative.
     // The dot product of bma and norm = cos(zenith_angle), and zenith_angle = (90 deg) - altitude.
     // So altitude = 90 - acos(dotprod).
-    *elevation = 90.0 - (180.0 / M_PI)*acos(bma.x*ap_normal.x + bma.y*ap_normal.y + bma.z*ap_normal.z);
+    *elevation = 90.0 - (180.0 / M_PI)*
+      qAcos(bma.x()*ap_normal.x() + bma.y()*ap_normal.y() + bma.z()*ap_normal.z());
   }
 }

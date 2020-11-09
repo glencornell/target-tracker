@@ -10,8 +10,8 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-HEADERS += look-at.hpp
+HEADERS += src/look-at.hpp \
+           src/vector3d.hpp
 
-SOURCES += main.cpp \
-           look-at.cpp
-
+SOURCES += src/main.cpp \
+           src/look-at.cpp
