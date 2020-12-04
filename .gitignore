@@ -1,5 +1,8 @@
-*~
 *.o
+*.pro
+*~
 .qmake.stash
 Makefile
 blos-asset
+moc_*.cpp
+moc_predefs.h
