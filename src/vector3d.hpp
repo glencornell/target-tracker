@@ -2,8 +2,8 @@
 
 #include <QtMath>
 
-// A point in 3D space in a cartesian coordinate system.  This is
-// similar to QVector3D because it consists of float and would lose
+// A point in 3D space in a cartesian coordinate system.  Similar to
+// QVector3D but uses double precision floats instead of single
 // precision.
 class Vector3D {
 private:

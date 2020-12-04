@@ -1,26 +1,23 @@
 #include <QCoreApplication>
 #include <QGeoCoordinate>
-#include <QTextStream>
-#include "look-at.hpp"
+#include <QTimer>
+#include "GeoObserver.hpp"
 
 int main(int argc, char * argv[]) {
   QCoreApplication a(argc, argv);
-  QTextStream stream(stdout);
   QGeoCoordinate point_a(34.24333333, 118.0975000, 1877.873);
   QGeoCoordinate point_b(34.24666667, 118.1038889, 1816.608);
+  GeoObserver observer;
+  
+  observer.setObserver(point_a);
+  observer.setObserved(point_b);
 
-  double distance;
-  double azimuth;
-  double elevation;
+  // quit application when work is complete:
+  QObject::connect(&observer, SIGNAL(finished()), &a, SLOT(quit()));
 
-  lookAt(point_a, point_b, true, &distance, &azimuth, &elevation);
+  // Run the observer's user hook in the main loop:
+  QTimer::singleShot(0, &observer, SLOT(getLookAngle()));
 
-  stream << "point_a: " << point_a.toString() << Qt::endl;
-  stream << "point_b: " << point_b.toString() << Qt::endl;
-  stream << " distance to point b: " << distance << Qt::endl;
-  stream << "  azimuth to point b: " << azimuth << Qt::endl;
-  stream << "elevation to point b: " << elevation << Qt::endl;
-
-  // Main loop:
+  // Run the main loop:
   return a.exec();
 }

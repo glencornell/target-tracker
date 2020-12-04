@@ -10,7 +10,6 @@
 // at point a to point b.
 void lookAt(QGeoCoordinate const &a,
             QGeoCoordinate const &b,
-            const bool oblate,
             double *los_distance,
             double *azimuth,
             double *elevation);

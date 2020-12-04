@@ -1,5 +1,4 @@
 *.o
-*.pro
 *~
 .qmake.stash
 Makefile

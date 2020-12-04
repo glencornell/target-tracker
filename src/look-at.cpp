@@ -33,13 +33,13 @@ double GeocentricLatitude(const double lat)
 }
 
 static
-void ConvertLocationToPoint(QGeoCoordinate const &c, bool const oblate, Vector3D *rval, Vector3D *normal, double *radius_at_point)
+void ConvertLocationToPoint(QGeoCoordinate const &c, Vector3D *rval, Vector3D *normal, double *radius_at_point)
 {
   // Convert (lat, lon, elv) to (x, y, z). Also return the normal and radius of the geoid at the point.
   const double lat = c.latitude() * M_PI / 180.0;
   const double lon = c.longitude() * M_PI / 180.0;
-  const double radius = oblate ? EarthRadiusInMeters(lat) : 6371009;
-  const double clat   = oblate ? GeocentricLatitude(lat)  : lat;
+  const double radius = EarthRadiusInMeters(lat);
+  const double clat   = GeocentricLatitude(lat);
         
   const double cosLon = qCos(lon);
   const double sinLon = qSin(lon);
@@ -75,7 +75,7 @@ void ConvertLocationToPoint(QGeoCoordinate const &c, bool const oblate, Vector3D
 }
 
 static
-Vector3D RotateGlobe(QGeoCoordinate const &b, QGeoCoordinate const &a, const bool oblate)
+Vector3D RotateGlobe(QGeoCoordinate const &b, QGeoCoordinate const &a)
 {
   // Get modified coordinates of 'b' by rotating the globe so that 'a' is at lat=0, lon=0.
   double cos_a, sin_a;
@@ -83,7 +83,7 @@ Vector3D RotateGlobe(QGeoCoordinate const &b, QGeoCoordinate const &a, const boo
   QGeoCoordinate br (b.latitude(), b.longitude() - a.longitude(), b.altitude());
   Vector3D brp;
 
-  ConvertLocationToPoint(br, oblate, &brp, 0, 0);
+  ConvertLocationToPoint(br, &brp, 0, 0);
 
   // Rotate brp cartesian coordinates around the z-axis by a.lon degrees,
   // then around the y-axis by a.lat degrees.
@@ -93,10 +93,7 @@ Vector3D RotateGlobe(QGeoCoordinate const &b, QGeoCoordinate const &a, const boo
   // So we will look the other way making the x-axis pointing right, the z-axis
   // pointing up, and the rotation treated as negative.
 
-  alat = -a.latitude() * M_PI / 180.0;
-  if (oblate) {
-    alat = GeocentricLatitude(alat);
-  }
+  alat = GeocentricLatitude(-a.latitude() * M_PI / 180.0);
   cos_a = qCos(alat);
   sin_a = qSin(alat);
 
@@ -124,13 +121,13 @@ Vector3D *NormalizeVectorDiff(Vector3D const &b, Vector3D const &a, Vector3D *rv
   return rval;
 }
 
-void lookAt(QGeoCoordinate const &a, QGeoCoordinate const &b, const bool oblate, double *los_distance, double *azimuth, double *elevation)
+void lookAt(QGeoCoordinate const &a, QGeoCoordinate const &b, double *los_distance, double *azimuth, double *elevation)
 {
   Vector3D ap, bp, br, bma;
   Vector3D ap_normal;
   
-  ConvertLocationToPoint(a, oblate, &ap, &ap_normal, 0);
-  ConvertLocationToPoint(b, oblate, &bp, 0, 0);
+  ConvertLocationToPoint(a, &ap, &ap_normal, 0);
+  ConvertLocationToPoint(b, &bp, 0, 0);
   *los_distance = ap.distanceTo(bp);
 
   // Let's use a trick to calculate azimuth:
@@ -139,7 +136,7 @@ void lookAt(QGeoCoordinate const &a, QGeoCoordinate const &b, const bool oblate,
   // but use angles based on subtraction.
   // Point A will be at x=radius, y=0, z=0.
   // Vector difference B-A will have dz = N/S component, dy = E/W component.                
-  br = RotateGlobe (b, a, oblate);
+  br = RotateGlobe (b, a);
   if ((br.z()*br.z() + br.y()*br.y()) > 1.0e-6) {
     double theta = qAtan2(br.z(), br.y()) * 180.0 / M_PI;
     double _azimuth = 90.0 - theta;
