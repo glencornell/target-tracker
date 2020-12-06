@@ -5,3 +5,4 @@ Makefile
 blos-asset
 moc_*.cpp
 moc_predefs.h
+qrc_*.cpp

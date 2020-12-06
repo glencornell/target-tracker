@@ -1,22 +1,28 @@
-#include <QGeoCoordinate>
-#include <QTextStream>
+#pragma once
 
-class GeoObserver : public QObject {
+#include <QObject>
+#include <QGeoPositionInfo>
+#include <QGeoPositionInfoSource>
+#include "Asset.hpp"
+
+class GeoObserver : public QObject
+{
   Q_OBJECT
 
 public:
   GeoObserver(QObject * parent = nullptr);
-  void setObserver(QGeoCoordinate &observer);
-  void setObserved(QGeoCoordinate &observed);
 
 private slots:
-  void getLookAngle();
+  void main();
+  void onPositionChanged(QGeoPositionInfo const &info);
+  void onError(QGeoPositionInfoSource::Error);
 
 signals:
   void finished();
 
 private:
-  QGeoCoordinate m_observer;
-  QGeoCoordinate m_observed;
+  Asset *observer;
+  Asset *observed;
+  QGeoPositionInfoSource *source;
 };
 
