@@ -1,93 +1,114 @@
-#include <QTextStream>
-#include <QDateTime>
+#include "GeoEntity.hpp"
 #include "GeoObserver.hpp"
-#include "data-sources/LogFilePositionSource.hpp"
 #include "look-at.hpp"
 
-GeoObserver::GeoObserver(QObject * /* parent */)
+GeoObserver::GeoObserver(GeoEntity *parent) :
+  GeoEntity(parent),
+  m_target(new GeoTarget)
 {
-  observer = new Asset();
-  gimbal   = new Gimbal(observer);
-  observed = new Asset();
+  if (parent)
+    connect(parent, &GeoEntity::positionChanged, this, &GeoObserver::onObserverPositionChanged);
+}
 
-  // print the object's movements
-  connect(observer, &Asset::positionChanged,   this, &GeoObserver::onObserverPositionChanged);
-  connect(observed, &Asset::positionChanged,   this, &GeoObserver::onObservedPositionChanged);
-  connect(gimbal,   &Gimbal::lookAngleChanged, this, &GeoObserver::onLookAngleChanged);
+GeoObserver::GeoObserver(QUuid const &uuid) :
+  GeoEntity(uuid),
+  m_target(new GeoTarget)
+{
+}
 
-  // Statically set the observer's position:
-  observer->setPosition(QGeoPositionInfo (QGeoCoordinate (34.24333333, 118.0975000, 1877.873), QDateTime::currentDateTimeUtc()));
+GeoObserver::~GeoObserver()
+{
+}
 
-  // The observed position will be obtained from the logfile position
-  // info source:
-  LogFilePositionSource *observed_source = new LogFilePositionSource(this);
-  observed->setPositionSource(observed_source);
-  source = observed_source;
+void GeoObserver::setParent(GeoEntity *parent)
+{
+  if (parent)
+    {
+      if (GeoEntity *old_parent = qobject_cast<GeoEntity *>(this->parent()))
+        disconnect(old_parent, &GeoEntity::positionChanged, this, &GeoObserver::onObserverPositionChanged);
+      connect(parent, &GeoEntity::positionChanged, this, &GeoObserver::onObserverPositionChanged);
+    }
+}
 
-  // Point the gimbal at the observed target
-  Target *target = new Target(observed);
-  gimbal->setTarget(target);
+GeoTarget *GeoObserver::target() const
+{
+  return m_target;
+}
+
+void GeoObserver::setTarget(GeoTarget *target)
+{
+  QGeoPositionInfo dummy;
+  if (m_target)
+    {
+      if (m_target->isEntity())
+        {
+          disconnect (m_target->entity(), &GeoEntity::positionChanged, this, &GeoObserver::onTargetPositionChanged);
+        }
+      delete m_target;
+    }
+  m_target = target;
+  emit targetChanged();
+
+  setLookAngle();
   
-  // Connect the position info source's error signal to terminate the
-  // program:
-  connect(observed_source, qOverload<QGeoPositionInfoSource::Error>(&LogFilePositionSource::error), this, &GeoObserver::onError);
+  // connect signals emitted from target
+  if (m_target->isEntity())
+    {
+      connect (m_target->entity(), &GeoEntity::positionChanged, this, &GeoObserver::onTargetPositionChanged);
+    }
 }
 
-void GeoObserver::onObserverPositionChanged(QGeoPositionInfo const &position)
+Direction GeoObserver::lookAngle() const
 {
-  QTextStream stream(stdout);
-  stream << " observer's location: " << position.coordinate().toString() << Qt::endl;
+  return m_lookAngle;
 }
 
-void GeoObserver::onObservedPositionChanged(QGeoPositionInfo const &position)
+void GeoObserver::setLookAngle()
 {
-  QTextStream stream(stdout);
-  stream << " observed's location: " << position.coordinate().toString() << Qt::endl;
-}
-
-void GeoObserver::onLookAngleChanged(Direction const &lookAngle)
-{
-  QTextStream stream(stdout);
-  stream << "  azimuth to observed: " << lookAngle.azimuth() << Qt::endl;
-  stream << "elevation to observed: " << lookAngle.elevation() << Qt::endl;
-}
-
-void GeoObserver::onPositionChanged(QGeoPositionInfo const &info)
-{
-  QTextStream stream(stdout);
+  // lookAt return parameters:
   double distance;
   double azimuth;
   double elevation;
   
-  lookAt(observer->position().coordinate(), info.coordinate(), &distance, &azimuth, &elevation);
-
-  stream << "======================" << Qt::endl;
-  stream << " observer's location: " << observer->position().coordinate().toString() << Qt::endl;
-  stream << " observed's location: " << info.coordinate().toString() << Qt::endl;
-  stream << " distance to point b: " << distance << Qt::endl;
-  stream << "  azimuth to point b: " << azimuth << Qt::endl;
-  stream << "elevation to point b: " << elevation << Qt::endl;
+  // Set up the observer's position (first from the parent)
+  GeoEntity *observer = qobject_cast<GeoEntity *>(parent());
+  if (!observer)
+    {
+      // If this is not attached to anything, then use your own
+      // position as the observation point.
+      observer = this;
+    }
+  
+  switch (m_target->targetType())
+    {
+    case GeoTarget::TARGET_ENTITY:
+      ::lookAt(observer->position().coordinate(),
+               m_target->entity()->position().coordinate(),
+               &distance, &azimuth, &elevation);
+      m_lookAngle = Direction(azimuth, elevation);
+      emit lookAngleChanged(m_lookAngle);
+      break;
+    case GeoTarget::TARGET_COORDINATE:
+      ::lookAt(observer->position().coordinate(),
+               m_target->coordinate(),
+               &distance, &azimuth, &elevation);
+      m_lookAngle = Direction(azimuth, elevation);
+      emit lookAngleChanged(m_lookAngle);
+      break;
+    case GeoTarget::TARGET_DIRECTION:
+      m_lookAngle = m_target->direction();
+      emit lookAngleChanged(m_lookAngle);
+    default:
+      break;
+    }
 }
 
-void GeoObserver::main()
+void GeoObserver::onObserverPositionChanged(QGeoPositionInfo const &)
 {
-  // Tell the objects to start moving:
-  observer->startUpdates();
-  observed->startUpdates();
+  setLookAngle();
 }
 
-void GeoObserver::onError(QGeoPositionInfoSource::Error error)
+void GeoObserver::onTargetPositionChanged(QGeoPositionInfo const &)
 {
-  Q_UNUSED(error)
-    
-  // Tell the observed object to stop reporting updates:
-  source->stopUpdates();
-  
-  // clean up:
-  delete observer;
-  delete observed;
-  delete source;
-  
-  // signal that we're done:
-  emit finished();
+  setLookAngle();
 }

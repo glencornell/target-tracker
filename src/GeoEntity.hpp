@@ -8,24 +8,24 @@
 #include "RotationReadingSource.hpp"
 #include <QRotationReading>
 
-// An asset is an object in the physical world, moving or not.  Each
-// Asset has an unique identifier, a geographic position and a
-// rotation. Assets obtain position and rotation (a.k.a. pose)
+// A GeoEntity is an object in the physical world, moving or not.
+// Each GeoEntity has an unique identifier, a geographic position and
+// a rotation. GeoEntities obtain position and rotation (a.k.a. pose)
 // information from data source objects injected at object
 // construction.  Position sources may be MAVLINK messages from a
 // serial port, a gpsd UDP message, a GeoClue2 DBUS message, a physics
 // engine, or even a text file.  If the rotational source is not
-// provided, then the Asset assumes a (0,0,0) rotation.
+// provided, then the GeoEntity assumes a (0,0,0) rotation.
 
-class Asset : public QObject
+class GeoEntity : public QObject
 {
   Q_OBJECT
   Q_PROPERTY(QGeoPositionInfo position READ position NOTIFY positionChanged)
   Q_PROPERTY(QRotationReading *rotation READ rotation NOTIFY rotationChanged)
 public:
-  Asset(QObject *parent = nullptr);
-  Asset(QUuid const &uuid);
-  virtual ~Asset();
+  GeoEntity(QObject *parent = nullptr);
+  GeoEntity(QUuid const &uuid);
+  virtual ~GeoEntity();
 
   QUuid const uuid() const;
 
@@ -38,10 +38,10 @@ public:
   QRotationReading *rotation() const;
 
 signals:
-  // emitted when the asset's position changes.
+  // emitted when the GeoEntity's position changes.
   void positionChanged(QGeoPositionInfo const &position);
 
-  // emitted when the asset's rotation changes.
+  // emitted when the GeoEntity's rotation changes.
   void rotationChanged(QRotationReading *reading);
 
 public slots:

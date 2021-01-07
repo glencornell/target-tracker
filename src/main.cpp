@@ -1,16 +1,16 @@
 #include <QCoreApplication>
 #include <QTimer>
-#include "GeoObserver.hpp"
+#include "BlosApp.hpp"
 
 int main(int argc, char * argv[]) {
   QCoreApplication a(argc, argv);
-  GeoObserver observer;
+  BlosApp blos_app;
 
   // quit application when work is complete:
-  QObject::connect(&observer, SIGNAL(finished()), &a, SLOT(quit()));
+  QObject::connect(&blos_app, &BlosApp::finished, &a, &QCoreApplication::quit);
 
   // Run the observer's user hook in the main loop:
-  QTimer::singleShot(0, &observer, SLOT(main()));
+  QTimer::singleShot(0, &blos_app, &BlosApp::main);
 
   // Run the main loop:
   return a.exec();

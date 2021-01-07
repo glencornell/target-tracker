@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>log-short.txt</file>
-        <file>log-long.txt</file>
+        <file>sim-data/log-short.txt</file>
+        <file>sim-data/log-long.txt</file>
     </qresource>
 </RCC>

@@ -13,23 +13,23 @@ TEMPLATE = app
 
 HEADERS += src/look-at.hpp \
            src/vector3d.hpp \
-           src/GeoObserver.hpp \
            src/Direction.hpp \
-           src/Target.hpp \
+           src/GeoEntity.hpp \
+           src/GeoTarget.hpp \
+           src/GeoObserver.hpp \
            src/RotationReadingSource.hpp \
-           src/Asset.hpp \
            src/data-sources/LogFilePositionSource.hpp \
-           src/Gimbal.hpp
+           src/BlosApp.hpp
 
 SOURCES += src/main.cpp \
            src/look-at.cpp \
-           src/GeoObserver.cpp \
            src/Direction.cpp \
-           src/Target.cpp \
+           src/GeoEntity.cpp \
+           src/GeoTarget.cpp \
+           src/GeoObserver.cpp \
            src/RotationReadingSource.cpp \
-           src/Asset.cpp \
            src/data-sources/LogFilePositionSource.cpp \
-           src/Gimbal.cpp
+           src/BlosApp.cpp
 
 RESOURCES += \
            logfile.qrc
