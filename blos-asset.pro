@@ -6,14 +6,14 @@ QT       += gui
 # Application Name:
 TARGET = blos-asset
 
+CONFIG   += debug
 CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-HEADERS += src/look-at.hpp \
-           src/vector3d.hpp \
-           src/Direction.hpp \
+HEADERS += src/GeoPoint.hpp \
+           src/LookAngle.hpp \
            src/GeoEntity.hpp \
            src/GeoTarget.hpp \
            src/GeoObserver.hpp \
@@ -22,8 +22,8 @@ HEADERS += src/look-at.hpp \
            src/BlosApp.hpp
 
 SOURCES += src/main.cpp \
-           src/look-at.cpp \
-           src/Direction.cpp \
+           src/GeoPoint.cpp \
+           src/LookAngle.cpp \
            src/GeoEntity.cpp \
            src/GeoTarget.cpp \
            src/GeoObserver.cpp \

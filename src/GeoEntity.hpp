@@ -20,7 +20,7 @@
 class GeoEntity : public QObject
 {
   Q_OBJECT
-  Q_PROPERTY(QGeoPositionInfo position READ position NOTIFY positionChanged)
+  Q_PROPERTY(QGeoPositionInfo  position READ position NOTIFY positionChanged)
   Q_PROPERTY(QRotationReading *rotation READ rotation NOTIFY rotationChanged)
 public:
   GeoEntity(QObject *parent = nullptr);
@@ -38,11 +38,8 @@ public:
   QRotationReading *rotation() const;
 
 signals:
-  // emitted when the GeoEntity's position changes.
   void positionChanged(QGeoPositionInfo const &position);
-
-  // emitted when the GeoEntity's rotation changes.
-  void rotationChanged(QRotationReading *reading);
+  void rotationChanged(QRotationReading *rotation);
 
 public slots:
   // Start receiving values from the sensors. You will not get

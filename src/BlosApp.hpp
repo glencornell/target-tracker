@@ -5,7 +5,7 @@
 #include <QGeoPositionInfoSource>
 #include "GeoEntity.hpp"
 #include "GeoObserver.hpp"
-#include "Direction.hpp"
+#include "LookAngle.hpp"
 
 class BlosApp : public QObject
 {
@@ -20,7 +20,7 @@ public slots:
 private slots:
   void onObserverPositionChanged(QGeoPositionInfo const &info);
   void onObservedPositionChanged(QGeoPositionInfo const &info);
-  void onLookAngleChanged(Direction const &info);
+  void onLookAngleChanged(LookAngle const &info);
   void onPositionChanged(QGeoPositionInfo const &info);
   void onError(QGeoPositionInfoSource::Error error);
 

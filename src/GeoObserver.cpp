@@ -1,13 +1,11 @@
 #include "GeoEntity.hpp"
 #include "GeoObserver.hpp"
-#include "look-at.hpp"
+#include "LookAngle.hpp"
 
-GeoObserver::GeoObserver(GeoEntity *parent) :
+GeoObserver::GeoObserver(QObject *parent) :
   GeoEntity(parent),
   m_target(new GeoTarget)
 {
-  if (parent)
-    connect(parent, &GeoEntity::positionChanged, this, &GeoObserver::onObserverPositionChanged);
 }
 
 GeoObserver::GeoObserver(QUuid const &uuid) :
@@ -18,16 +16,6 @@ GeoObserver::GeoObserver(QUuid const &uuid) :
 
 GeoObserver::~GeoObserver()
 {
-}
-
-void GeoObserver::setParent(GeoEntity *parent)
-{
-  if (parent)
-    {
-      if (GeoEntity *old_parent = qobject_cast<GeoEntity *>(this->parent()))
-        disconnect(old_parent, &GeoEntity::positionChanged, this, &GeoObserver::onObserverPositionChanged);
-      connect(parent, &GeoEntity::positionChanged, this, &GeoObserver::onObserverPositionChanged);
-    }
 }
 
 GeoTarget *GeoObserver::target() const
@@ -58,45 +46,31 @@ void GeoObserver::setTarget(GeoTarget *target)
     }
 }
 
-Direction GeoObserver::lookAngle() const
+LookAngle GeoObserver::lookAngle() const
 {
   return m_lookAngle;
 }
 
 void GeoObserver::setLookAngle()
 {
-  // lookAt return parameters:
-  double distance;
-  double azimuth;
-  double elevation;
-  
-  // Set up the observer's position (first from the parent)
-  GeoEntity *observer = qobject_cast<GeoEntity *>(parent());
-  if (!observer)
-    {
-      // If this is not attached to anything, then use your own
-      // position as the observation point.
-      observer = this;
-    }
+  // For readability, this instance is the observer
+  GeoEntity *observer = this;
   
   switch (m_target->targetType())
     {
     case GeoTarget::TARGET_ENTITY:
-      ::lookAt(observer->position().coordinate(),
-               m_target->entity()->position().coordinate(),
-               &distance, &azimuth, &elevation);
-      m_lookAngle = Direction(azimuth, elevation);
+      m_lookAngle.setLookAngle(observer->position().coordinate(),
+                               m_target->entity()->position().coordinate());
       emit lookAngleChanged(m_lookAngle);
       break;
     case GeoTarget::TARGET_COORDINATE:
-      ::lookAt(observer->position().coordinate(),
-               m_target->coordinate(),
-               &distance, &azimuth, &elevation);
-      m_lookAngle = Direction(azimuth, elevation);
+      m_lookAngle.setLookAngle(observer->position().coordinate(),
+                               m_target->coordinate());
       emit lookAngleChanged(m_lookAngle);
       break;
-    case GeoTarget::TARGET_DIRECTION:
-      m_lookAngle = m_target->direction();
+    case GeoTarget::TARGET_LOOK_ANGLE:
+      // TODO: only set if the look angle has changed:
+      m_lookAngle = m_target->lookAngle();
       emit lookAngleChanged(m_lookAngle);
     default:
       break;

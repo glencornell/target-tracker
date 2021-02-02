@@ -6,7 +6,7 @@ RotationReadingSource::RotationReadingSource(QObject *parent)
   : QObject(parent),
     m_rotation(new QRotationReading)
 {
-  // connect to the sensor backend
+  // connect to the default sensor backend
   if (!m_rotationSensor.connectToBackend())
     {
       qWarning() << "Cannot connect to rotation sensor backend!";
@@ -31,6 +31,10 @@ bool RotationReadingSource::filter(QRotationReading *reading)
 {
   m_rotation->setTimestamp(reading->timestamp());
   m_rotation->setFromEuler(reading->x(), reading->y(), reading->z());
+
+  // TODO: rather than pass all data unconditionally, compare the
+  // current reading against the last reported reading: if the
+  // difference exceeds a threshold, then emit the signal.
   emit rotationChanged(m_rotation);
 
   // Do no further processing of the sensor data

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QObject>
-#include "Direction.hpp"
+#include "LookAngle.hpp"
 #include "GeoEntity.hpp"
 #include "GeoTarget.hpp"
 
@@ -15,19 +15,18 @@ class GeoObserver : public GeoEntity
 {
   Q_OBJECT
   Q_PROPERTY(GeoTarget *target    READ target    WRITE setTarget NOTIFY targetChanged)
-  Q_PROPERTY(Direction  lookAngle READ lookAngle                 NOTIFY lookAngleChanged)
+  Q_PROPERTY(LookAngle  lookAngle READ lookAngle                 NOTIFY lookAngleChanged)
 public:
-  GeoObserver(GeoEntity *parent = nullptr);
+  GeoObserver(QObject *parent = nullptr);
   GeoObserver(QUuid const &uuid);
   ~GeoObserver();
 
-  void setParent(GeoEntity *parent);
   GeoTarget *target() const;
-  Direction lookAngle() const;
+  LookAngle lookAngle() const;
 
 signals:
   void targetChanged();
-  void lookAngleChanged(Direction const &direction);
+  void lookAngleChanged(LookAngle const &lookAngle);
 
 public slots:
   void setTarget(GeoTarget *target);
@@ -37,12 +36,9 @@ public slots:
 private:
   void setLookAngle();
   
-  // What are we attached to?
-  GeoEntity *m_parent;
-  
   // What are we looking at?
   GeoTarget *m_target;
 
   // What are the az/el from the GeoEntity's vantage (observer) to the target?
-  Direction  m_lookAngle;
+  LookAngle  m_lookAngle;
 };

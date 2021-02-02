@@ -2,23 +2,24 @@
 
 #include <QtCore>
 #include <QGeoCoordinate>
-#include "Direction.hpp"
+#include "LookAngle.hpp"
 #include "GeoEntity.hpp"
 
 // A GeoTarget is something we can look at.  It can be nothing, a
-// geographic coordinate, a GeoEntity, or a direction.
+// geographic coordinate, a GeoEntity, or a look angle (direction).
 class GeoTarget
 {
   Q_GADGET
   Q_PROPERTY(TargetType      targetType READ targetType)
-  Q_PROPERTY(Direction       direction  READ direction  WRITE setDirection)
+  Q_PROPERTY(LookAngle       lookAngle  READ lookAngle  WRITE setLookAngle)
   Q_PROPERTY(QGeoCoordinate  coordinate READ coordinate WRITE setCoordinate)
   Q_PROPERTY(GeoEntity      *entity     READ entity     WRITE setEntity)
 public:
-  // The discriminant: what we're looking at.
+  // The discriminant: what we're looking at.  sometimes called the
+  // pointing mode.
   enum TargetType {
     TARGET_NONE,       // Look at nothing
-    TARGET_DIRECTION,  // Look in a compass direction and elevation above the horizon
+    TARGET_LOOK_ANGLE, // Look in a direction (azimuth and elevation)
     TARGET_COORDINATE, // Look at a geographic coordinate (and altitude)
     TARGET_ENTITY      // Look at an entity
   };
@@ -28,7 +29,7 @@ public:
   GeoTarget();
   GeoTarget(QGeoCoordinate coordinate);
   GeoTarget(GeoEntity *entity);
-  GeoTarget(Direction direction);
+  GeoTarget(LookAngle lookAngle);
   GeoTarget(GeoTarget const &other);
   ~GeoTarget();
   GeoTarget &operator=(GeoTarget const &other);
@@ -39,8 +40,8 @@ public:
 
   // accessors
   TargetType targetType() const;
-  Direction direction() const;
-  void setDirection(Direction direction);
+  LookAngle lookAngle() const;
+  void setLookAngle(LookAngle lookAngle);
   QGeoCoordinate coordinate() const;
   void setCoordinate(QGeoCoordinate coordinate);
   GeoEntity *entity() const;
@@ -48,7 +49,7 @@ public:
 
   // What type of GeoTarget is this?
   bool isNothing() const;
-  bool isDirection() const;
+  bool isLookAngle() const;
   bool isCoordinate() const;
   bool isEntity() const;
 
@@ -56,9 +57,9 @@ private:
   // The discriminant of the anonymous union
   TargetType        m_targetType; // What are we looking at?
 
-  // This can only be looing at one thing at a time.
+  // We can look at only one thing at a time.
   union {
-    Direction       m_direction;
+    LookAngle       m_lookAngle;
     QGeoCoordinate  m_coordinate;
     GeoEntity      *m_entity;
   };

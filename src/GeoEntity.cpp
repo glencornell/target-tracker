@@ -3,13 +3,20 @@
 GeoEntity::GeoEntity(QObject * parent) :
   QObject(parent),
   m_uuid(QUuid::createUuid()),
+  m_positionSource(nullptr),
+  m_position(),
+  m_rotationSource(nullptr),
   m_rotation(new QRotationReading(this)),
   m_started(false)
 {
 }
 
 GeoEntity::GeoEntity(QUuid const &uuid) :
+  QObject(),
   m_uuid(uuid),
+  m_positionSource(nullptr),
+  m_position(),
+  m_rotationSource(nullptr),
   m_rotation(new QRotationReading(this)),
   m_started(false)
 {
@@ -28,8 +35,8 @@ QUuid const GeoEntity::uuid() const
 void GeoEntity::setPositionSource(QGeoPositionInfoSource *src)
 {
   Q_ASSERT(src);
-  // if (m_positionSource)
-  //   disconnect(m_positionSource, &QGeoPositionInfoSource::positionUpdated, this, &GeoEntity::setPosition);
+  if (m_positionSource)
+    disconnect(m_positionSource, &QGeoPositionInfoSource::positionUpdated, this, &GeoEntity::setPosition);
   m_positionSource = src;
   connect(m_positionSource, &QGeoPositionInfoSource::positionUpdated, this, &GeoEntity::setPosition);
   if(m_started)
@@ -55,8 +62,8 @@ QGeoPositionInfo const GeoEntity::position() const
 void GeoEntity::setRotationSource(RotationReadingSource *src)
 {
   Q_ASSERT(src);
-  // if (m_rotationSource)
-  //   disconnect(m_rotationSource, &RotationReadingSource::rotationChanged, this, &GeoEntity::setRotation);
+  if (m_rotationSource)
+    disconnect(m_rotationSource, &RotationReadingSource::rotationChanged, this, &GeoEntity::setRotation);
   m_rotationSource = src;
   connect(m_rotationSource, &RotationReadingSource::rotationChanged, this, &GeoEntity::setRotation);
   if(m_started)

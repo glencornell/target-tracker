@@ -17,9 +17,9 @@ GeoTarget::GeoTarget(GeoEntity *entity) :
 {
 }
 
-GeoTarget::GeoTarget(Direction direction) :
-  m_targetType(TARGET_DIRECTION),
-  m_direction(direction)
+GeoTarget::GeoTarget(LookAngle lookAngle) :
+  m_targetType(TARGET_LOOK_ANGLE),
+  m_lookAngle(lookAngle)
 {
 }
 
@@ -27,8 +27,8 @@ GeoTarget::GeoTarget(GeoTarget const &other) :
   m_targetType(other.m_targetType)
 {
   switch(m_targetType) {
-  case TARGET_DIRECTION:
-    m_direction = other.m_direction;
+  case TARGET_LOOK_ANGLE:
+    m_lookAngle = other.m_lookAngle;
     break;
   case TARGET_COORDINATE:
     m_coordinate = other.m_coordinate;
@@ -49,8 +49,8 @@ GeoTarget &GeoTarget::operator=(GeoTarget const &other)
 {
   m_targetType = other.m_targetType;
   switch(m_targetType) {
-  case TARGET_DIRECTION:
-    m_direction = other.m_direction;
+  case TARGET_LOOK_ANGLE:
+    m_lookAngle = other.m_lookAngle;
     break;
   case TARGET_COORDINATE:
     m_coordinate = other.m_coordinate;
@@ -69,8 +69,8 @@ bool GeoTarget::operator==(const GeoTarget &other) const
   if (m_targetType == other.m_targetType)
     {
       switch(m_targetType) {
-      case TARGET_DIRECTION:
-        return m_direction == other.m_direction;
+      case TARGET_LOOK_ANGLE:
+        return m_lookAngle == other.m_lookAngle;
         break;
       case TARGET_COORDINATE:
         return m_coordinate == other.m_coordinate;
@@ -90,15 +90,15 @@ GeoTarget::TargetType GeoTarget::targetType() const
   return m_targetType;
 }
 
-Direction GeoTarget::direction() const
+LookAngle GeoTarget::lookAngle() const
 {
-  return m_direction;
+  return m_lookAngle;
 }
 
-void GeoTarget::setDirection(Direction direction)
+void GeoTarget::setLookAngle(LookAngle lookAngle)
 {
-  m_targetType = TARGET_DIRECTION;
-  m_direction  = direction;
+  m_targetType = TARGET_LOOK_ANGLE;
+  m_lookAngle  = lookAngle;
 }
 
 QGeoCoordinate GeoTarget::coordinate() const
@@ -128,9 +128,9 @@ bool GeoTarget::isNothing() const
   return m_targetType == TARGET_NONE;
 }
 
-bool GeoTarget::isDirection() const
+bool GeoTarget::isLookAngle() const
 {
-  return m_targetType == TARGET_DIRECTION;
+  return m_targetType == TARGET_LOOK_ANGLE;
 }
 
 bool GeoTarget::isCoordinate() const
