@@ -2,7 +2,10 @@
 *~
 .qmake.stash
 Makefile
-blos-asset
+blos-asset/blos-asset
 moc_*.cpp
 moc_predefs.h
 qrc_*.cpp
+src/libgeotracker.a
+tests/target_wrapper.sh
+tests/tests

@@ -71,14 +71,20 @@ void BlosApp::onPositionChanged(QGeoPositionInfo const &info)
 
 void BlosApp::main()
 {
+  QString app_version(GIT_VERSION);
+  QTextStream stream(stdout);
+    
+  stream << "========================" << Qt::endl;
+  stream << "Version: " << app_version << Qt::endl;
+  stream << "========================" << Qt::endl << Qt::endl;
+
   // Tell the position sources to start reporting updates:
   source->startUpdates();
 }
 
 void BlosApp::onError(QGeoPositionInfoSource::Error error)
 {
-  Q_UNUSED(error)
-    
+  Q_UNUSED(error);
   // Tell the observed object to stop reporting updates:
   source->stopUpdates();
   

@@ -1,33 +1,15 @@
-QT       += core
-QT       += positioning
-QT       += sensors
-QT       += gui
+TEMPLATE  = subdirs
 
-# Application Name:
-TARGET = blos-asset
+SUBDIRS  += src \
+            tests \
+            blos-asset
 
-CONFIG   += debug
-CONFIG   += console
-CONFIG   -= app_bundle
+# Define the build-time directory dependencies
+tests.depends = src
+blos-asset.depends = src
 
-TEMPLATE = app
+# Common configurations
+include ("common.pri")
 
-HEADERS += src/GeoPoint.hpp \
-           src/LookAngle.hpp \
-           src/GeoEntity.hpp \
-           src/GeoObserver.hpp \
-           src/RotationReadingSource.hpp \
-           src/data-sources/LogFilePositionSource.hpp \
-           src/BlosApp.hpp
-
-SOURCES += src/main.cpp \
-           src/GeoPoint.cpp \
-           src/LookAngle.cpp \
-           src/GeoEntity.cpp \
-           src/GeoObserver.cpp \
-           src/RotationReadingSource.cpp \
-           src/data-sources/LogFilePositionSource.cpp \
-           src/BlosApp.cpp
-
-RESOURCES += \
-           logfile.qrc
+# Additional files to be included in the distribution
+DISTFILES +=
