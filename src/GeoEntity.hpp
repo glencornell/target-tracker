@@ -20,8 +20,8 @@
 class GeoEntity : public QObject
 {
   Q_OBJECT
-  Q_PROPERTY(QGeoPositionInfo  position READ position NOTIFY positionChanged)
-  Q_PROPERTY(QRotationReading *rotation READ rotation NOTIFY rotationChanged)
+  Q_PROPERTY(QGeoPositionInfo  position READ position WRITE setPosition NOTIFY positionChanged)
+  Q_PROPERTY(QRotationReading *rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
 public:
   GeoEntity(QObject *parent = nullptr);
   GeoEntity(QUuid const &uuid);
@@ -29,12 +29,7 @@ public:
 
   QUuid const uuid() const;
 
-  void setPositionSource(QGeoPositionInfoSource *src);
-  QGeoPositionInfoSource *positionSource() const;
   QGeoPositionInfo const position() const;
-
-  void setRotationSource(RotationReadingSource *src);
-  RotationReadingSource *rotationSource() const;
   QRotationReading *rotation() const;
 
 signals:
@@ -42,28 +37,16 @@ signals:
   void rotationChanged(QRotationReading *rotation);
 
 public slots:
-  // Start receiving values from the sensors. You will not get
-  // position/oriententation updates until this method is invoked.
-  // This method implements the delegate of responsibility pattern to
-  // call the position and rotation source startUpdates() methods.
-  virtual void startUpdates();
-
   // This slot is used to connect a QGeoPositionInfoSource to get
   // position updates.
-  void setPosition(QGeoPositionInfo const &position);
+  virtual void setPosition(QGeoPositionInfo const &position);
 
   // This slot is called by the RotationReadingSource whenever new
   // values are available.
-  void setRotation(QRotationReading *reading);
+  virtual void setRotation(QRotationReading const *reading);
   
 private:
   QUuid                   m_uuid;
-
-  QGeoPositionInfoSource *m_positionSource;
   QGeoPositionInfo        m_position;
-
-  RotationReadingSource  *m_rotationSource;
   QRotationReading       *m_rotation;
-
-  bool                    m_started;
 };

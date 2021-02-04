@@ -33,9 +33,9 @@ public:
 
   LookAngle &operator=(LookAngle const &other);
   bool operator==(const LookAngle &other) const;
-  inline bool operator!=(const LookAngle &other) const {
-    return !operator==(other);
-  }
+  bool operator!=(const LookAngle &other) const;
+  LookAngle &operator+=(const LookAngle &other);
+  LookAngle &operator-=(const LookAngle &other);
   
   float azimuth() const;
   void setAzimuth(float azimuth);
@@ -47,7 +47,9 @@ public:
   // reference.
   void setLookAngle(QGeoCoordinate const &observer, QGeoCoordinate const &target);
   
-private:  
+private:
+  friend bool qFuzzyCompare(LookAngle const &p1, LookAngle const &p2);
+  
   float m_azimuth;   // degrees from true north
   float m_elevation; // degrees from the horizon
 };
@@ -55,3 +57,5 @@ private:
 // Make LookAngle known to QMetaType so that it may be used as a
 // custom type in QVariant.
 Q_DECLARE_METATYPE(LookAngle)
+
+bool qFuzzyCompare(LookAngle const &p1, LookAngle const &p2);

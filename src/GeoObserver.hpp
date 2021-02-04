@@ -1,44 +1,74 @@
 #pragma once
 
 #include <QObject>
-#include "LookAngle.hpp"
+#include <QGeoCoordinate>
 #include "GeoEntity.hpp"
-#include "GeoTarget.hpp"
+#include "LookAngle.hpp"
 
 // A GeoObserver is a type of GeoEntity that can point at another
-// object in space.  A gimballed camera is an example of a
-// GeoObserver.  Therefore, a GeoObserver not only has a position and
-// orientation, but also allows one to change it's orientation to
+// object in space.  A gimballed camera or a radio telescope are
+// examples of GeoObservers.  A GeoObserver not only has a position
+// and orientation, but also allows one to change it's orientation to
 // "look at" a point in space, a heading or another GeoEntity.
+
+// The calculated look angle is in the Earth cetered, earth fixed
+// reference frame. In other words, the azimuth is measured from true
+// North and the elevation is from the horizon, regardless of the
+// observer's position and orientation.
 
 class GeoObserver : public GeoEntity
 {
   Q_OBJECT
-  Q_PROPERTY(GeoTarget *target    READ target    WRITE setTarget NOTIFY targetChanged)
   Q_PROPERTY(LookAngle  lookAngle READ lookAngle                 NOTIFY lookAngleChanged)
 public:
+  // The discriminant: what we're looking at.  sometimes called the
+  // pointing mode.
+  enum TargetType {
+    TARGET_NONE,       // Look at nothing
+    TARGET_LOOK_ANGLE, // Look in a direction (azimuth and elevation)
+    TARGET_COORDINATE, // Look at a geographic coordinate (and altitude)
+    TARGET_ENTITY      // Look at an entity
+  };
+  Q_ENUM(TargetType);
+
   GeoObserver(QObject *parent = nullptr);
   GeoObserver(QUuid const &uuid);
   ~GeoObserver();
 
-  GeoTarget *target() const;
   LookAngle lookAngle() const;
 
+  // Setting the pointing mode:
+  void setTarget();                                      // look at nothing
+  void setTarget(QGeoCoordinate const position);         // look at a fixed position
+  void setTarget(LookAngle const commanded_lookAngle);   // look in a fixed direction
+  void setTarget(GeoEntity *entity);                     // look at a an entity (that might be moving)
+
 signals:
-  void targetChanged();
+  void targetChanged(TargetType &targetType);
   void lookAngleChanged(LookAngle const &lookAngle);
 
 public slots:
-  void setTarget(GeoTarget *target);
-  void onObserverPositionChanged(QGeoPositionInfo const &position);
-  void onTargetPositionChanged(QGeoPositionInfo const &position);
+  virtual void onTargetPositionChanged(QGeoPositionInfo const &position);
+  void positionChanged(QGeoPositionInfo const &position);
+
+protected:
+  void calculateLookAngle();
 
 private:
-  void setLookAngle();
-  
-  // What are we looking at?
-  GeoTarget *m_target;
+  // The discriminant of the anonymous union
+  TargetType        m_targetType; // What are we looking at?
 
-  // What are the az/el from the GeoEntity's vantage (observer) to the target?
+  // We can look at only one thing at a time.  Therefore, this is a
+  // union discriminated by m_targetType
+  union {
+    LookAngle       m_commanded_lookAngle;
+    QGeoCoordinate  m_coordinate;
+    GeoEntity      *m_entity;
+  };
+  
+  // The az/el from the GeoEntity's vantage (observer) to the target.
+  // This is not to be confused with the commanded look angle above.
+  // Rather, this is the calculated look angle to be sent to the
+  // hardware pointing device.
   LookAngle  m_lookAngle;
 };

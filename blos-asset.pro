@@ -15,7 +15,6 @@ TEMPLATE = app
 HEADERS += src/GeoPoint.hpp \
            src/LookAngle.hpp \
            src/GeoEntity.hpp \
-           src/GeoTarget.hpp \
            src/GeoObserver.hpp \
            src/RotationReadingSource.hpp \
            src/data-sources/LogFilePositionSource.hpp \
@@ -25,7 +24,6 @@ SOURCES += src/main.cpp \
            src/GeoPoint.cpp \
            src/LookAngle.cpp \
            src/GeoEntity.cpp \
-           src/GeoTarget.cpp \
            src/GeoObserver.cpp \
            src/RotationReadingSource.cpp \
            src/data-sources/LogFilePositionSource.cpp \

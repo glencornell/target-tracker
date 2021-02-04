@@ -200,6 +200,22 @@ bool LookAngle::operator==(LookAngle const &) const
   return false;
 }
 
+bool LookAngle::operator!=(const LookAngle &other) const {
+  return !operator==(other);
+}
+
+LookAngle &LookAngle::operator+=(const LookAngle &other) {
+  m_azimuth += other.m_azimuth;
+  m_elevation += other.m_elevation;
+  return *this;
+}
+
+LookAngle &LookAngle::operator-=(const LookAngle &other) {
+  m_azimuth -= other.m_azimuth;
+  m_elevation -= other.m_elevation;
+  return *this;
+}
+
 float LookAngle::azimuth() const
 {
   return m_azimuth;
@@ -219,3 +235,8 @@ void LookAngle::setElevation(float elevation)
 {
   m_elevation = elevation;
 }
+
+bool qFuzzyCompare(LookAngle const &p1, LookAngle const &p2) {
+  return qFuzzyCompare(p1.m_azimuth, p2.m_azimuth) && qFuzzyCompare(p1.m_elevation, p2.m_elevation);
+}
+

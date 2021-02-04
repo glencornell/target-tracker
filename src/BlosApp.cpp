@@ -10,30 +10,31 @@ BlosApp::BlosApp(QObject * /* parent */)
   gimbal   = new GeoObserver();
   observed = new GeoEntity();
 
-  //  The gimbal's position is tied to the position of the observer
-  connect(observer, &GeoEntity::positionChanged,    gimbal, &GeoObserver::onObserverPositionChanged);
+  // The gimbal's position is tied to the position of the observer
+  connect(observer, &GeoEntity::positionChanged, gimbal, &GeoObserver::positionChanged);
 
-  // print the object's movements
+  // The observed position updates will be obtained from the logfile
+  // position info source:
+  LogFilePositionSource *observed_source = new LogFilePositionSource(this);
+  connect(observed_source, &LogFilePositionSource::positionUpdated, observed, &GeoEntity::setPosition);
+  source = observed_source;
+
+  // Point the gimbal at the observed target
+  gimbal->setTarget(observed);
+
+  // Print everyone's movements
   connect(observer, &GeoEntity::positionChanged,    this, &BlosApp::onObserverPositionChanged);
   connect(observed, &GeoEntity::positionChanged,    this, &BlosApp::onObservedPositionChanged);
   connect(gimbal,   &GeoObserver::lookAngleChanged, this, &BlosApp::onLookAngleChanged);
 
-  // Statically set the observer's position:
-  observer->setPosition(QGeoPositionInfo (QGeoCoordinate (34.24333333, 118.0975000, 1877.873), QDateTime::currentDateTimeUtc()));
-
-  // The observed position will be obtained from the logfile position
-  // info source:
-  LogFilePositionSource *observed_source = new LogFilePositionSource(this);
-  observed->setPositionSource(observed_source);
-  source = observed_source;
-
-  // Point the gimbal at the observed target
-  GeoTarget *target = new GeoTarget(observed);
-  gimbal->setTarget(target);
-  
   // Connect the position info source's error signal to terminate the
   // program:
   connect(observed_source, qOverload<QGeoPositionInfoSource::Error>(&LogFilePositionSource::error), this, &BlosApp::onError);
+  
+  // The observer doesn't move, so we can statically set the
+  // observer's position.  Set the position after the connections have
+  // been made so that the objects get the initial conditions:
+  observer->setPosition(QGeoPositionInfo (QGeoCoordinate (34.24333333, 118.0975000, 1877.873), QDateTime::currentDateTimeUtc()));
 }
 
 void BlosApp::onObserverPositionChanged(QGeoPositionInfo const &position)
@@ -70,9 +71,8 @@ void BlosApp::onPositionChanged(QGeoPositionInfo const &info)
 
 void BlosApp::main()
 {
-  // Tell the objects to start moving:
-  observer->startUpdates();
-  observed->startUpdates();
+  // Tell the position sources to start reporting updates:
+  source->startUpdates();
 }
 
 void BlosApp::onError(QGeoPositionInfoSource::Error error)
