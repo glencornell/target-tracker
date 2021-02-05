@@ -7,4 +7,5 @@ class test_LookAngle : public QObject {
 
 private slots:
   void test_accessors();
+  void test_setLookAngle();
 };

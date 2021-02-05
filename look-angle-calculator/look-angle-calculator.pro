@@ -1,20 +1,18 @@
 include ("../common.pri")
 
 # Application Name:
-TARGET     = blos-asset
+TARGET     = look-angle-calculator
 
 CONFIG    += console
-CONFIG    += no_testcase_installs
+CONFIG    += debug
 CONFIG    -= app_bundle
 
 TEMPLATE   = app
 
-HEADERS   += BlosApp.hpp
+HEADERS   += LACApp.hpp
 
 SOURCES   += main.cpp \
-             BlosApp.cpp
-
-RESOURCES += logfile.qrc
+             LACApp.cpp
 
 symbian: LIBS += -lgeotracker
 else:unix|win32: LIBS += -L$$OUT_PWD/../src/ -lgeotracker

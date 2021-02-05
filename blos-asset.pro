@@ -2,11 +2,13 @@ TEMPLATE  = subdirs
 
 SUBDIRS  += src \
             tests \
-            blos-asset
+            blos-asset \
+            look-angle-calculator
 
 # Define the build-time directory dependencies
 tests.depends = src
 blos-asset.depends = src
+look-angle-calculator.depends = src
 
 # Common configurations
 include ("common.pri")
