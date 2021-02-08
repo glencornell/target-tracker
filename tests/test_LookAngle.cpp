@@ -1,3 +1,4 @@
+#include <QtMath>
 #include "LookAngle.hpp"
 #include "test_LookAngle.hpp"
 
@@ -17,8 +18,8 @@ void test_LookAngle::test_setLookAngle() {
   LookAngle a;
 
   a.setLookAngle(observer, target);
-  QVERIFY2(a.azimuth() == 85.1199, "azimuth");
-  QVERIFY2(a.elevation() == 4.88009, "elevation");
+  QVERIFY2(qFabs(a.azimuth() - 270.339)  <= 0.001, "azimuth");
+  QVERIFY2(qFabs(a.elevation() - 4.8812) <= 0.001, "elevation");
 }
 
 // generate basic main: no GUI, no events
