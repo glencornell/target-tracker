@@ -4,7 +4,7 @@
 
 int main(int argc, char * argv[]) {
   QCoreApplication a(argc, argv);
-  BlosApp blos_app;
+  BlosApp blos_app(&a, argc, argv);
 
   // quit application when work is complete:
   QObject::connect(&blos_app, &BlosApp::finished, &a, &QCoreApplication::quit);

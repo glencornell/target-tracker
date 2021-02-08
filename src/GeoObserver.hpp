@@ -48,8 +48,8 @@ signals:
   void lookAngleChanged(LookAngle const &lookAngle);
 
 public slots:
-  virtual void onTargetPositionChanged(QGeoPositionInfo const &position);
-  void positionChanged(QGeoPositionInfo const &position);
+  void onObserverPositionChanged(QGeoPositionInfo const &position);
+  void onTargetPositionChanged(QGeoPositionInfo const &position);
 
 protected:
   void calculateLookAngle();

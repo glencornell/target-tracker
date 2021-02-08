@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QCoreApplication>
 #include <QGeoPositionInfo>
 #include <QGeoPositionInfoSource>
 #include "GeoEntity.hpp"
@@ -12,7 +13,7 @@ class BlosApp : public QObject
   Q_OBJECT
 
 public:
-  BlosApp(QObject * parent = nullptr);
+  BlosApp(QCoreApplication *app, int argc, char *argv[]);
 
 public slots:
   void main();
@@ -28,6 +29,7 @@ signals:
   void finished();
 
 private:
+  QCoreApplication       *m_app;
   GeoEntity              *observer;
   GeoObserver            *gimbal;
   GeoEntity              *observed;

@@ -9,6 +9,8 @@ QT       += positioning
 QT       += sensors
 QT       += gui
 
+CONFIG   += debug
+
 # Add additional compiler checks
 contains(DEFINES, DEVELOPER_MODE) {
     CONFIG += debug

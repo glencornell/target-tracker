@@ -4,14 +4,20 @@
 #include "data-sources/LogFilePositionSource.hpp"
 #include "GeoPoint.hpp"
 
-BlosApp::BlosApp(QObject * /* parent */)
+BlosApp::BlosApp(QCoreApplication *app, int argc, char *argv[]) :
+  m_app(app)
 {
+  Q_UNUSED(argc);
+  Q_UNUSED(argv);
+  QCoreApplication::setApplicationName(QCoreApplication::translate("main", "blos-main"));
+  QCoreApplication::setApplicationVersion(GIT_VERSION);
+
   observer = new GeoEntity();
   gimbal   = new GeoObserver();
   observed = new GeoEntity();
 
   // The gimbal's position is tied to the position of the observer
-  connect(observer, &GeoEntity::positionChanged, gimbal, &GeoObserver::positionChanged);
+  connect(observer, &GeoEntity::positionChanged, gimbal, &GeoEntity::setPosition);
 
   // The observed position updates will be obtained from the logfile
   // position info source:
@@ -40,20 +46,20 @@ BlosApp::BlosApp(QObject * /* parent */)
 void BlosApp::onObserverPositionChanged(QGeoPositionInfo const &position)
 {
   QTextStream stream(stdout);
-  stream << " observer's location: " << position.coordinate().toString() << Qt::endl;
+  stream << "   observer's location: " << position.coordinate().toString() << Qt::endl;
 }
 
 void BlosApp::onObservedPositionChanged(QGeoPositionInfo const &position)
 {
   QTextStream stream(stdout);
-  stream << "   target's location: " << position.coordinate().toString() << Qt::endl;
+  stream << "     target's location: " << position.coordinate().toString() << Qt::endl;
 }
 
 void BlosApp::onLookAngleChanged(LookAngle const &lookAngle)
 {
   QTextStream stream(stdout);
-  stream << "  azimuth to target: " << lookAngle.azimuth() << Qt::endl;
-  stream << "elevation to target: " << lookAngle.elevation() << Qt::endl;
+  stream << "     azimuth to target: " << lookAngle.azimuth() << Qt::endl;
+  stream << "   elevation to target: " << lookAngle.elevation() << Qt::endl;
 }
 
 void BlosApp::onPositionChanged(QGeoPositionInfo const &info)
@@ -71,13 +77,6 @@ void BlosApp::onPositionChanged(QGeoPositionInfo const &info)
 
 void BlosApp::main()
 {
-  QString app_version(GIT_VERSION);
-  QTextStream stream(stdout);
-    
-  stream << "========================" << Qt::endl;
-  stream << "Version: " << app_version << Qt::endl;
-  stream << "========================" << Qt::endl << Qt::endl;
-
   // Tell the position sources to start reporting updates:
   source->startUpdates();
 }

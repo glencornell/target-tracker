@@ -7,6 +7,8 @@ GeoObserver::GeoObserver(QObject *parent) :
   m_targetType(TARGET_NONE),
   m_entity(nullptr)
 {
+  // track the observer's movements
+  connect (this, &GeoEntity::positionChanged, this, &GeoObserver::onObserverPositionChanged);
 }
 
 GeoObserver::GeoObserver(QUuid const &uuid) :
@@ -14,6 +16,8 @@ GeoObserver::GeoObserver(QUuid const &uuid) :
   m_targetType(TARGET_NONE),
   m_entity(nullptr)
 {
+  // track the observer's movements
+  connect (this, &GeoEntity::positionChanged, this, &GeoObserver::onObserverPositionChanged);
 }
 
 GeoObserver::~GeoObserver()
@@ -60,7 +64,7 @@ void GeoObserver::setTarget(GeoEntity *entity)
     } else {
       m_entity = entity;
       m_targetType = TARGET_ENTITY;
-    
+      
       // connect signals emitted from target
       connect (m_entity, &GeoEntity::positionChanged, this, &GeoObserver::onTargetPositionChanged);
       calculateLookAngle();
@@ -101,9 +105,8 @@ void GeoObserver::calculateLookAngle()
   emit lookAngleChanged(m_lookAngle);
 }
 
-void GeoObserver::positionChanged(QGeoPositionInfo const &position)
+void GeoObserver::onObserverPositionChanged(QGeoPositionInfo const &)
 {
-  GeoEntity::positionChanged(position);
   calculateLookAngle();
 }
 
