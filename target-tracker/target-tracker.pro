@@ -1,7 +1,7 @@
 include ("../common.pri")
 
 # Application Name:
-TARGET     = blos-asset
+TARGET     = target-tracker
 
 CONFIG    += console
 CONFIG    += no_testcase_installs
@@ -9,10 +9,10 @@ CONFIG    -= app_bundle
 
 TEMPLATE   = app
 
-HEADERS   += BlosApp.hpp
+HEADERS   += TargetTrackerApp.hpp
 
 SOURCES   += main.cpp \
-             BlosApp.cpp
+             TargetTrackerApp.cpp
 
 RESOURCES += logfile.qrc
 

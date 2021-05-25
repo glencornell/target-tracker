@@ -69,6 +69,7 @@ private:
   // The az/el from the GeoEntity's vantage (observer) to the target.
   // This is not to be confused with the commanded look angle above.
   // Rather, this is the calculated look angle to be sent to the
-  // hardware pointing device.
+  // hardware pointing device.  Remember that this is in the world
+  // reference frame.
   LookAngle  m_lookAngle;
 };

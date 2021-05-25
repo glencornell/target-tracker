@@ -35,7 +35,7 @@ public:
   double distanceTo (GeoPoint const &to) const;
 
   // Convert to a Geodetic coordinate:
-  QGeoCoordinate convert() const;
+  QGeoCoordinate coordinate() const;
   
 private:
   double m_x;

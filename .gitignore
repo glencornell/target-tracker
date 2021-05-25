@@ -2,11 +2,11 @@
 *~
 .qmake.stash
 Makefile
-blos-asset/blos-asset
 look-angle-calculator/look-angle-calculator
 moc_*.cpp
 moc_predefs.h
 qrc_*.cpp
 src/libgeotracker.a
+target-tracker/target-tracker
 tests/target_wrapper.sh
 tests/tests

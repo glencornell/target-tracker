@@ -494,7 +494,7 @@ double GeoPoint::distanceTo (GeoPoint const &to) const {
   return qSqrt (dx*dx + dy*dy + dz*dz);
 }
 
-QGeoCoordinate GeoPoint::convert() const {
+QGeoCoordinate GeoPoint::coordinate() const {
   double latitude, longitude, altitude;
   pj_Convert_Geocentric_To_Geodetic(&pj_wgs84, m_x, m_y, m_z, &latitude, &longitude, &altitude);
   return QGeoCoordinate(latitude, longitude, altitude);

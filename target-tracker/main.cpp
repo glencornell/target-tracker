@@ -1,16 +1,16 @@
 #include <QCoreApplication>
 #include <QTimer>
-#include "BlosApp.hpp"
+#include "TargetTrackerApp.hpp"
 
 int main(int argc, char * argv[]) {
   QCoreApplication a(argc, argv);
-  BlosApp blos_app(&a, argc, argv);
+  TargetTrackerApp app(&a, argc, argv);
 
   // quit application when work is complete:
-  QObject::connect(&blos_app, &BlosApp::finished, &a, &QCoreApplication::quit);
+  QObject::connect(&app, &TargetTrackerApp::finished, &a, &QCoreApplication::quit);
 
   // Run the observer's user hook in the main loop:
-  QTimer::singleShot(0, &blos_app, &BlosApp::main);
+  QTimer::singleShot(0, &app, &TargetTrackerApp::main);
 
   // Run the main loop:
   return a.exec();
