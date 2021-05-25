@@ -1,5 +1,5 @@
 include ("../common.pri")
-include ("../src/includes.pri")
+include ("../libgeotracker/includes.pri")
 
 QT        += testlib
 

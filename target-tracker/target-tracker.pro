@@ -17,13 +17,13 @@ SOURCES   += main.cpp \
 RESOURCES += logfile.qrc
 
 symbian: LIBS += -lgeotracker
-else:unix|win32: LIBS += -L$$OUT_PWD/../src/ -lgeotracker
+else:unix|win32: LIBS += -L$$OUT_PWD/../libgeotracker -lgeotracker
 
-#INCLUDEPATH += $$PWD/../src
-#DEPENDPATH += $$PWD/../src
+#INCLUDEPATH += $$PWD/../libgeotracker
+#DEPENDPATH += $$PWD/../libgeotracker
 
-win32: PRE_TARGETDEPS += $$OUT_PWD/../src/geotracker.lib
-else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../src/libgeotracker.a
+win32: PRE_TARGETDEPS += $$OUT_PWD/../libgeotracker/geotracker.lib
+else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../libgeotracker/libgeotracker.a
 
 include (../deployment.pri)
 include (../gitversion.pri)

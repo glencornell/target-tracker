@@ -1,14 +1,14 @@
 TEMPLATE  = subdirs
 
-SUBDIRS  += src \
+SUBDIRS  += libgeotracker \
             tests \
             target-tracker \
             look-angle-calculator
 
 # Define the build-time directory dependencies
-tests.depends = src
-target-tracker.depends = src
-look-angle-calculator.depends = src
+tests.depends = libgeotracker
+target-tracker.depends = libgeotracker
+look-angle-calculator.depends = libgeotracker
 
 # Common configurations
 include ("common.pri")

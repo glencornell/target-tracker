@@ -1,6 +1,7 @@
 # This tells all projects that include this file to also use the
-# `src` project folder as an includes path resolving library headers.
-INCLUDEPATH += $$PWD/src
+# `libgeotracker` project folder as an includes path resolving library
+# headers.
+INCLUDEPATH += $$PWD/libgeotracker
 SRC_DIR = $$PWD
 
 # Every project will need these
